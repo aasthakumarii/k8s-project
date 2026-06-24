@@ -128,7 +128,7 @@ let sortDir = "desc";
 // Load posts from API with pagination & sorting
 async function loadPosts() {
   try {
-    const url = `https://bloghub-application.onrender.com/api/posts?page=${currentPage}&size=${pageSize}&sortBy=${sortBy}&sortDir=${sortDir}`;
+    const url = `/api/posts?page=${currentPage}&size=${pageSize}&sortBy=${sortBy}&sortDir=${sortDir}`;
     const data = await apiGet(url);
 
     allPosts = data.content; // Array of PostDto
