@@ -1,39 +1,32 @@
 name: Build and Push Docker Image
 
 on:
-push:
-branches:
-- main
-
-env:
-IMAGE_NAME: bloghub
+  push:
+    branches:
+      - main
 
 jobs:
-build-and-push:
-runs-on: ubuntu-latest
+  docker:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout Repository
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
 
-  - name: Set up Docker Buildx
-    uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-  - name: Login to Docker Hub
-    uses: docker/login-action@v3
-    with:
-      username: ${{ secrets.DOCKERHUB_USERNAME }}
-      password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  - name: Build Docker Image
-    run: |
-      docker build \
-        -t ${{ secrets.DOCKERHUB_USERNAME }}/bloghub:latest \
-        -t ${{ secrets.DOCKERHUB_USERNAME }}/bloghub:${{ github.sha }} \
-        ./BlogHub-Application
-
-  - name: Push Latest Image
-    run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/bloghub:latest
-
-  - name: Push Commit Image
-    run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/bloghub:${{ github.sha }}
+      - name: Build and Push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./BlogHub-Application
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/bloghub:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/bloghub:${{ github.sha }}
