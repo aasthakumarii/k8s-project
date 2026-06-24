@@ -1,32 +1,42 @@
-name: Build and Push Docker Image
+name: Build and Push to ECR
 
 on:
   push:
     branches:
       - main
 
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPOSITORY: k8s
+
 jobs:
-  docker:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Source
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          role-to-assume: arn:aws:iam::500782030335:role/github-actions-role
+          aws-region: ap-south-1
 
-      - name: Build and Push
-        uses: docker/build-push-action@v6
-        with:
-          context: ./BlogHub-Application
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/bloghub:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/bloghub:${{ github.sha }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -t ${{ steps.login-ecr.outputs.registry }}/k8s:latest \
+            ./BlogHub-Application
+
+      - name: Push Docker Image
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/k8s:latest
