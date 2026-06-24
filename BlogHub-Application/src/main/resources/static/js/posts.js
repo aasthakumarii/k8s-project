@@ -201,7 +201,7 @@ function filterPosts(query) {
 async function deletePost(id) {
   if (!confirm("Are you sure you want to delete this post?")) return;
   try {
-    await apiDelete(`https://bloghub-application.onrender.com/api/posts/${id}`);
+    await apiDelete(`/api/posts/${id}`);
     showToast("✅ Post deleted successfully!", "success");
     loadPosts();
   } catch (err) {
