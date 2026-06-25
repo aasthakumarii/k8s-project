@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: bloghub
+data:
+  POSTGRES_DB: bloghub
+

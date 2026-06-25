@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: bloghub-ingress
+  namespace: bloghub
+
+spec:
+  rules:
+  - host: bloghub.local
+
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+
+        backend:
+          service:
+            name: bloghub-service
+
+            port:
+              number: 80
